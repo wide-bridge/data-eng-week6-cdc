@@ -1,0 +1,20 @@
+{
+  "name": "minio-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.s3.S3SinkConnector",
+    "tasks.max": "1",
+    "topics": "shop.shop.orders",
+    "s3.bucket.name": "cdc-raw",
+    "s3.region": "us-east-1",
+    "store.url": "http://minio:9000",
+    "aws.access.key.id": "REPLACE_WITH_MINIO_ACCESS_KEY",
+    "aws.secret.access.key": "REPLACE_WITH_MINIO_SECRET_KEY",
+    "storage.class": "io.confluent.connect.s3.storage.S3Storage",
+    "format.class": "io.confluent.connect.s3.format.json.JsonFormat",
+    "flush.size": "5",
+    "behavior.on.null.values": "ignore",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
