@@ -1,6 +1,6 @@
 # 6주차 산출물 — 실시간 CDC 파이프라인
 
-MySQL의 변경 기록을 Debezium으로 수집하고 Kafka를 거쳐 MinIO에 JSON 파일로 저장하는 실습입니다.
+MySQL의 변경 기록을 Debezium으로 수집하고 Kafka를 거쳐 MinIO에 JSON 파일로 저장 실습.
 
 ## 1. 구성
 
@@ -12,7 +12,7 @@ MySQL의 변경 기록을 Debezium으로 수집하고 Kafka를 거쳐 MinIO에 J
 | minio | S3 호환 적재 대상 | 9000(API), 9001(콘솔) |
 
 사용 이미지: `apache/kafka:3.7.0`, `mysql:8.0`, `debezium/connect:2.7.3.Final`, `pgsty/minio`.
-S3 Sink 플러그인 버전은 `12.1.15`입니다.
+S3 Sink 플러그인 버전은 `12.1.15`임.
 
 ## 2. 데이터 흐름
 
@@ -41,28 +41,26 @@ MySQL(binlog) → Debezium(mysql-cdc) → Kafka(shop.shop.orders)
 - `register-mysql.json`: Debezium 소스 커넥터 설정
 - `sink-minio.json`: S3 Sink 커넥터 설정
 
-공개 제출본에서는 실제 비밀번호를 제거했습니다. 실행 중인 WSL 실습 파일은 변경하지 않았습니다.
-Compose 실행 전 `.env.example`을 `.env`로 복사하고 본인의 값을 입력합니다.
-커넥터 JSON은 각각 `register-mysql.local.json`, `sink-minio.local.json`으로 복사한 뒤 `REPLACE_WITH_...` 값을 실제 자격증명으로 교체하여 등록합니다. JSON 자리표시자는 자동 치환되지 않습니다.
-Debezium 비밀번호는 MySQL에서 만든 사용자와, MinIO 키는 해당 MinIO 계정과 일치해야 합니다.
-`.env`와 `*.local.json`은 Git에서 제외합니다.
-플러그인 바이너리와 가상환경은 제출 대상에서 제외합니다.
-Compose 실행 전 S3 Sink 플러그인을 `plugins/confluentinc-kafka-connect-s3`에 설치해야 합니다.
-MySQL의 `shop.orders` 테이블과 Debezium 사용자·권한, MinIO의 `cdc-raw` 버킷은 별도로 생성해야 합니다.
+공개 제출본에서는 실제 비밀번호를 제거함. 실행 중인 WSL 실습 파일은 변경하지 않았음.
+커넥터 JSON은 각각 `register-mysql.local.json`, `sink-minio.local.json`으로 복사한 뒤 `REPLACE_WITH_...` 값을 실제 자격증명으로 교체하여 등록함. JSON 자리표시자는 자동 치환되지 않았음.
+Debezium 비밀번호는 MySQL에서 만든 사용자와, MinIO 키는 해당 MinIO 계정과 일치해야 함.
+
+Compose 실행 전 S3 Sink 플러그인을 `plugins/confluentinc-kafka-connect-s3`에 설치.
+MySQL의 `shop.orders` 테이블과 Debezium 사용자·권한, MinIO의 `cdc-raw` 버킷은 별도로 생성.
 
 ## 5. 확인한 것
 
-2026-11-05 실행 환경을 읽기 전용으로 점검했습니다.
+2026-11-05 실행 환경을 읽기 전용으로 점검함.
 
 - MySQL에서 `log_bin=ON`, `binlog_format=ROW` 확인(실습 출력).
 - `mysql-cdc`, `minio-sink` 모두 커넥터와 task 0이 `RUNNING`.
-- Kafka 이벤트를 처음부터 조회하여 `r=2`, `c=14`, `u=6`, `d=1`을 확인. 이 수치는 점검 시점의 이벤트 건수이며 현재 테이블 행 수가 아닙니다. null tombstone은 제외했습니다.
+- Kafka 이벤트를 처음부터 조회하여 `r=2`, `c=14`, `u=6`, `d=1`을 확인. 이 수치는 점검 시점의 이벤트 건수이며 현재 테이블 행 수가 아님. null tombstone은 제외함.
 - MinIO `cdc-raw/topics/shop.shop.orders/partition=0/`에 JSON 객체 4개 확인.
 - 객체 시작 오프셋: `0000000000`, `0000000005`, `0000000011`, `0000000016`.
-- 마지막 객체를 S3 API로 읽어 INSERT 이벤트와 주문 데이터를 확인했습니다. MySQL 변경이 MinIO 파일까지 전달되는 흐름이 확인됐습니다.
-- Sink 설정은 `flush.size=5`, `behavior.on.null.values=ignore`. 마지막 객체는 JSON 레코드 5줄로 확인됐습니다. 파일 생성 전후를 새로 재현한 실험은 수행하지 않았습니다.
+- 마지막 객체를 S3 API로 읽어 INSERT 이벤트와 주문 데이터를 확인함. MySQL 변경이 MinIO 파일까지 전달되는 흐름이 확인.
+- Sink 설정은 `flush.size=5`, `behavior.on.null.values=ignore`. 마지막 객체는 JSON 레코드 5줄로 확인. 파일 생성 전후를 새로 재현한 실험은 수행하지 않았음.
 
-저장 파일에는 `schema`와 `payload`가 함께 있습니다. Sink의 `value.converter.schemas.enable=false` 설정이 기존 이벤트의 `schema` 필드를 제거하는 것은 아닙니다.
+저장 파일에는 `schema`와 `payload`가 함께 있습니다. Sink의 `value.converter.schemas.enable=false` 설정이 기존 이벤트의 `schema` 필드를 제거하는 것은 아님.
 
 ## 6. 남은 개선점
 
