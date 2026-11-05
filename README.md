@@ -1,6 +1,6 @@
 # 6주차 산출물 — 실시간 CDC 파이프라인
 
-MySQL의 변경 기록을 Debezium으로 수집하고 Kafka를 거쳐 MinIO에 JSON 파일로 저장 실습.
+MySQL의 변경 기록을 Debezium으로 수집하고 Kafka를 거쳐 MinIO에 JSON 파일로 저장하는 실습.
 
 ## 1. 구성
 
@@ -42,7 +42,8 @@ MySQL(binlog) → Debezium(mysql-cdc) → Kafka(shop.shop.orders)
 - `sink-minio.json`: S3 Sink 커넥터 설정
 
 공개 제출본에서는 실제 비밀번호를 제거함. 실행 중인 WSL 실습 파일은 변경하지 않았음.
-커넥터 JSON은 각각 `register-mysql.local.json`, `sink-minio.local.json`으로 복사한 뒤 `REPLACE_WITH_...` 값을 실제 자격증명으로 교체하여 등록함. JSON 자리표시자는 자동 치환되지 않았음.
+Compose 실행 전 `.env.example`을 `.env`로 복사하고 실제 값을 입력해야 함.
+커넥터 JSON을 각각 `register-mysql.local.json`, `sink-minio.local.json`으로 복사하고, `REPLACE_WITH_...` 값을 실제 자격증명으로 교체한 뒤 등록해야 함. JSON 자리표시자는 자동 치환되지 않음.
 Debezium 비밀번호는 MySQL에서 만든 사용자와, MinIO 키는 해당 MinIO 계정과 일치해야 함.
 
 Compose 실행 전 S3 Sink 플러그인을 `plugins/confluentinc-kafka-connect-s3`에 설치.
